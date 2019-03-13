@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'Kano';
+    src: url('fonts/Kano.otf');
+}
+
+navbar{
+    position: sticky;
+    display: flex;
+    height: 90px;
+    width: 100%;
+    align-items: center;
+}
+
+.logo{
+    font-family: "Kano", Fallback, sans-serif;
+    display: flex;
+    flex-basis: 40%;
+    height: 90px;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.nav-links{
+    display: flex;
+    flex-basis: 60%;
+    align-items: center;
+    height: 90px;
+    font-size: 13px;
+}
+
+.nav-links a{
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #666;
+    height: 90px;
+    margin-right: 3%;
+    line-height: 90px;
+}
+
+.nav-links a:hover{
+    border-bottom: solid 4px rgb(72,196,210);
+}
+
+.active{
+    border-bottom: solid 4px rgb(72,196,210);
+}
