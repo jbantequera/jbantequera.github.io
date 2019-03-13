@@ -3,46 +3,132 @@
     src: url('fonts/Kano.otf');
 }
 
+body{
+    text-align: center;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+background-left{
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:50%;
+    overflow:hidden;
+    z-index:-1; /* Remove this line if it's not going to be a background! */
+    background: #f5b4b2;
+    width: 50%;
+}
+
+background-right{
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:50%;
+    right:0;
+    overflow:hidden;
+    z-index:-1; /* Remove this line if it's not going to be a background! */
+    background: #c3e2dd;
+    width: 50%;
+}
+
 navbar{
+    margin: 0;
+    background: white;
+    font-family: "Kano", Fallback, sans-serif;
     position: sticky;
     display: flex;
-    height: 90px;
+    height: 40px;
     width: 100%;
     align-items: center;
+    box-shadow: -1px 3px 3px rgba(0, 0, 0, .4);
 }
 
 .logo{
-    font-family: "Kano", Fallback, sans-serif;
     display: flex;
-    flex-basis: 40%;
-    height: 90px;
-    justify-content: center;
+    flex-basis: 20%;
+    margin-left: 5%;
+    justify-content: flex-start;
     align-items: center;
-    font-size: 18px;
+}
+
+.logo a, .logo a:hover, .logo a:active, .logo a:visited, .logo a:focus {
+    text-decoration: none;
+    color: black;
+    font-size: 24px;
 }
 
 .nav-links{
     display: flex;
-    flex-basis: 60%;
+    justify-content: flex-end;
+    flex-basis: 80%;
     align-items: center;
-    height: 90px;
     font-size: 13px;
+    margin-right: 5%;
+    height: 20px;
 }
 
 .nav-links a{
     display: block;
     box-sizing: border-box;
     text-decoration: none;
-    color: #666;
-    height: 90px;
+    color: black;
     margin-right: 3%;
-    line-height: 90px;
+    line-height: 20px;
 }
 
 .nav-links a:hover{
-    border-bottom: solid 4px rgb(72,196,210);
+    margin-top: 2px;
+    border-bottom: solid 2px #f5b4b2;
 }
 
 .active{
-    border-bottom: solid 4px rgb(72,196,210);
+    margin-top: 2px;
+    border-bottom: solid 2px #f5b4b2;
+}
+
+.content{
+    display: flex;
+}
+
+.content-left{
+    flex-basis: 50%;
+}
+
+.content-right{
+    flex-basis: 50%;
+}
+
+.whoAmI{
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.whoAmI .logo{
+    margin-left: 0;
+    margin-top: 5%;
+}
+
+.whoAmI .title{
+    margin-top: 2%;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.whoAmI line{
+    margin-top: 1%;
+    width: 30%;
+    border: solid 0.5px white;
+    border-radius: 50px;
+}
+
+.whoAmI .description{
+    margin: 1% 5% 5% 5%;
+    width: 45%;
 }
