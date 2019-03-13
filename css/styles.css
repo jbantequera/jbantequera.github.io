@@ -7,6 +7,7 @@ body{
     text-align: center;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
 }
 
 background-left{
@@ -39,7 +40,7 @@ navbar{
     background: white;
     font-family: "Kano", Fallback, sans-serif;
     display: flex;
-    height: 40px;
+    height: 5vh;
     width: 100%;
     align-items: center;
     box-shadow: -1px 3px 3px rgba(0, 0, 0, .4);
@@ -90,20 +91,22 @@ navbar{
 
 .content{
     display: flex;
+    height: 95vh;
 }
 
 .content-left{
-    position: fixed;
     color: white;
+    flex: 0 0 auto;
     text-shadow: 0px 0px 10px rgba(73, 12, 59, .5);
     flex-basis: 50%;
 }
 
 .content-right{
-    margin-top: 5%;
-    margin-left: 50%;
-    margin-bottom: 5%;
+    flex: 1 1 auto;
     flex-basis: 50%;
+    padding-top: 3vh;
+    padding-bottom: 3vh;
+    overflow: auto;
 }
 
 .whoAmI{
@@ -123,6 +126,7 @@ navbar{
 }
 
 .whoAmI .title{
+    font-family: "Kano", Fallback, sans-serif;
     margin-top: 2%;
     font-size: 26px;
     font-weight: bold;
@@ -150,6 +154,7 @@ navbar{
 }
 
 .languages .title{
+    font-family: "Kano", Fallback, sans-serif;
     margin-top: 2%;
     font-size: 26px;
     font-weight: bold;
@@ -192,6 +197,21 @@ navbar{
     align-items: center;
 }
 
+.topRepositories .title{
+    font-family: "Kano", Fallback, sans-serif;
+    margin-top: 2%;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.topRepositories line{
+    margin-top: 1%;
+    margin-bottom: 2%;
+    width: 20%;
+    border: solid 0.5px black;
+    border-radius: 50px;
+}
+
 .topRepositories .card {
     display: flex;
     flex-direction: column;
@@ -217,6 +237,10 @@ navbar{
 .topRepositories .card .container {
     margin-top: 2%;
     padding: 2px 16px;
+}
+
+.topRepositories .card .container .title{
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .topRepositories .card .container .title{
