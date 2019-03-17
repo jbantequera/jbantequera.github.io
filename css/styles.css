@@ -10,30 +10,6 @@ body{
     overflow: hidden;
 }
 
-background-left{
-    position: fixed;
-    top:0;
-    bottom:0;
-    left:0;
-    right:50%;
-    overflow:hidden;
-    z-index:-1; /* Remove this line if it's not going to be a background! */
-    background: #f5b4b2;
-    width: 50%;
-}
-
-background-right{
-    position: fixed;
-    top:0;
-    bottom:0;
-    left:50%;
-    right:0;
-    overflow:hidden;
-    z-index:-1; /* Remove this line if it's not going to be a background! */
-    background: #c3e2dd;
-    width: 50%;
-}
-
 navbar{
     position: sticky;
     top: 0;
@@ -96,17 +72,34 @@ navbar{
 
 .content-left{
     color: white;
+    background: #f5b4b2;
     flex: 0 0 auto;
     text-shadow: 0px 0px 10px rgba(73, 12, 59, .5);
     flex-basis: 50%;
 }
 
 .content-right{
+    background: #c3e2dd;
     flex: 1 1 auto;
     flex-basis: 50%;
     padding-top: 3vh;
     padding-bottom: 3vh;
     overflow: auto;
+}
+
+
+@media (max-width: 1024px) {
+    body {
+        overflow: auto;
+    }
+
+    .content {
+        flex-direction: column;
+    }
+
+    .content-right {
+        overflow: visible;
+    }
 }
 
 .whoAmI{
