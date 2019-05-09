@@ -24,7 +24,6 @@ navbar{
 
 .logo{
     display: flex;
-    flex-basis: 20%;
     margin-left: 5%;
     justify-content: flex-start;
     align-items: center;
