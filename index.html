@@ -16,7 +16,7 @@
     ║    type="module"></script>                                       ║
     ╚══════════════════════════════════════════════════════════════════╝
   -->
-<script type="module" src="https://playful-shark-7vmz7-dev-ed.trailblaze.my.salesforce.com/lightning/lightning.out.latest/index.iife.prod.js"></script>
+<!-- <script type="module" src="https://playful-shark-7vmz7-dev-ed.trailblaze.my.salesforce.com/lightning/lightning.out.latest/index.iife.prod.js"></script> -->
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -220,12 +220,16 @@
         app-id         — 18-digit ID from the Lightning Out 2.0 App Manager.
     -->
     <div id="lwc-host">
-      <lightning-out-application
-        frontdoor-url="https://playful-shark-7vmz7-dev-ed.trailblaze.my.salesforce.com/secur/frontdoor.jsp?sid=00Dd200000embav!AQEAQKazAL6YFaYG9fITshK8WUfIEtutVCzDUo84jCr1ZJyOoDBpdyeAGUoh6EoxhzX3oNoP9eISYjRUsePPVgBgvWlPIJPS"
-        components="c-hello-world"
-        app-id="1Usd20000000AiXCAU">
-      </lightning-out-application>
-      <c-hello-world></c-hello-world>
+        <!--lightning-out-application
+            frontdoor-url="https://playful-shark-7vmz7-dev-ed.trailblaze.my.salesforce.com/secur/frontdoor.jsp?sid=00Dd200000embav!AQEAQKazAL6YFaYG9fITshK8WUfIEtutVCzDUo84jCr1ZJyOoDBpdyeAGUoh6EoxhzX3oNoP9eISYjRUsePPVgBgvWlPIJPS"
+            components="c-hello-world"
+            app-id="1Usd20000000AiXCAU">
+        </lightning-out-application>
+        <c-hello-world></c-hello-world-->
+        <script type="text/javascript" async="" src="https://playful-shark-7vmz7-dev-ed.trailblaze.my.salesforce.com/lightning/lightning.out.latest/index.iife.prod.js"></script>
+
+        <lightning-out-application app-id="1Usd20000000AiXCAU" components="c-hello-world"></lightning-out-application>
+        <c-hello-world></c-hello-world>
     </div>
   </div>
 
