@@ -228,6 +228,7 @@
   async function getFrontdoorUrl(accessToken) {
     setStatus('loading', 'Getting frontdoor URL from Salesforce…');
 
+    console.log('ACCESS TOKEN: ' + accessToken);
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/singleaccess`, {
       method:  'POST',
       headers: {
