@@ -16,7 +16,7 @@
       SF_ORG_URL:     "https://orgfarm-2dbe9a529a-dev-ed.develop.my.salesforce.com",
 
       // Consumer Key of your Connected App
-      CLIENT_ID:      "3MVG9WVXk15qiz1Ik1mlVUdMvJlXaj5VhLUFmURWZ2CnWpAN6hyNBOL87yGz5scwYsQSAC.HbPdTS8G.sgf.V",
+      CLIENT_ID:      "3MVG9WVXk15qiz1Ik1mlVUdMvJnovK3NWkhs0T0fGryUXYq1DTPBfZIf.vy6q80TdWKWgeZ8k758sRI97IJY1",
 
       // Must match EXACTLY the callback URL set in the Connected App
       // i.e. the URL of this very page on GitHub Pages
@@ -229,6 +229,7 @@
     setStatus('loading', 'Getting frontdoor URL from Salesforce…');
 
     console.log('ACCESS TOKEN: ' + accessToken);
+    
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/singleaccess`, {
       method:  'POST',
       headers: {
