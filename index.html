@@ -242,11 +242,13 @@
     });
 
     if (!res.ok) {
+      console.log('KO res');
       const err = await res.text();
       throw new Error(`singleaccess failed (${res.status}): ${err}`);
     }
 
     const data = await res.json();
+    console.log('Response OK: ' + JSON.stringify(data));
     // Response contains { frontdoor_uri: "https://..." }
     return data.frontdoor_uri;
   }
