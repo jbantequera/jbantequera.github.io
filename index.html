@@ -121,7 +121,8 @@
     <span id="status-text">Initialising…</span>
   </div>
 
-  <button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button>
+  <!--button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button-->
+  <div>1.0</div>
 
   <div id="component-box">
     <div class="box-header">Lightning Out 2.0 — c-hello-world</div>
@@ -198,10 +199,9 @@
 
     const body = new URLSearchParams({
       grant_type:    'authorization_code',
-      client_id:     CONFIG.CLIENT_ID,
-      redirect_uri:  CONFIG.REDIRECT_URI,
-      code,
-      code_verifier: verifier
+      client_id:      CONFIG.CLIENT_ID,
+      client_secret:  prompt("Introduce the Client Secret"),
+      redirect_uri:   CONFIG.REDIRECT_URI,
     });
 
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
@@ -302,7 +302,7 @@
 
   async function main() {
     const params = new URLSearchParams(window.location.search);
-    const code   = params.get('code');
+    const code   = true;
     const error  = params.get('error');
 
     if (error) {
