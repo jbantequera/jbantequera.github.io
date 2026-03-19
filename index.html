@@ -145,80 +145,19 @@
     el.style.display = 'block';
     el.textContent = '⚠ ' + msg;
   }
-
-  // ─── PKCE helpers ────────────────────────────────────────────────────────
-  async function generateCodeVerifier() {
-    const array = new Uint8Array(64);
-    crypto.getRandomValues(array);
-    return btoa(String.fromCharCode(...array))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
-
-  async function generateCodeChallenge(verifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
   
   // ─── step 1: OAuth 2.0 Authorization Code flow ───────────────────────────
   // Redirects the user to Salesforce to log in.
   // Salesforce redirects back to THIS page with ?code=...
 
-  async function startOAuth() {
-    const verifier   = await generateCodeVerifier();
-    const challenge  = await generateCodeChallenge(verifier);
-
-    // Store verifier in sessionStorage so it survives the redirect
-    sessionStorage.setItem('pkce_verifier', verifier);
-
+  function startOAuth() {
     const params = new URLSearchParams({
-      response_type:         'code',
-      client_id:             CONFIG.CLIENT_ID,
-      redirect_uri:          CONFIG.REDIRECT_URI,
-      scope:                 'lightning openid',
-      code_challenge:        challenge,
-      code_challenge_method: 'S256'
-    });
-
-    window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
-  }
-
-  // ─── step 2: Exchange auth code for access_token ─────────────────────────
-  // Called after Salesforce redirects back with ?code=...
-  // NOTE: a public client (no client_secret) works for testing with a
-  //       Connected App that has "No Secret Required for Web Server Flow" enabled.
-  //       For production use a backend to keep the secret server-side.
-
-  async function exchangeCodeForToken(code) {
-    setStatus('loading', 'Exchanging auth code for access token…');
-
-    const verifier = sessionStorage.getItem('pkce_verifier');
-    if (!verifier) throw new Error('PKCE verifier missing from sessionStorage — please log in again');
-    sessionStorage.removeItem('pkce_verifier');
-
-    const body = new URLSearchParams({
-      grant_type:    'authorization_code',
+      response_type: 'token',       // <-- key difference from 'code'
       client_id:     CONFIG.CLIENT_ID,
       redirect_uri:  CONFIG.REDIRECT_URI,
-      code,
-      code_verifier: verifier
+      scope:         'lightning openid'
     });
-
-    const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Token exchange failed: ${err}`);
-    }
-
-    const data = await res.json();
-    return data.access_token;
+    window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
   }
 
   // ─── step 3: Exchange access_token for frontdoor_uri ─────────────────────
@@ -299,22 +238,23 @@
   // ─── main: check URL for OAuth callback or kick off flow ──────────────────
 
   async function main() {
+    // Implicit flow returns params in the URL hash, not query string
+    const hash   = new URLSearchParams(window.location.hash.replace('#', ''));
     const params = new URLSearchParams(window.location.search);
-    const code   = params.get('code');
-    const error  = params.get('error');
+
+    const accessToken = hash.get('access_token');
+    const error       = params.get('error') || hash.get('error');
 
     if (error) {
-      // Salesforce returned an OAuth error
-      showError(`OAuth error: ${params.get('error_description') || error}`);
+      showError(`OAuth error: ${params.get('error_description') || hash.get('error_description') || error}`);
       return;
     }
 
-    if (code) {
-      // We're back from Salesforce with an auth code — clean the URL
+    if (accessToken) {
+      // Clean the token out of the URL immediately
       window.history.replaceState({}, '', window.location.pathname);
 
       try {
-        const accessToken  = await exchangeCodeForToken(code);
         const frontdoorUrl = await getFrontdoorUrl(accessToken);
         loadLightningOut(frontdoorUrl);
       } catch (e) {
@@ -322,8 +262,6 @@
       }
 
     } else {
-      // First visit — show the login button
-      setStatus('loading', 'Ready — please log in');
       document.getElementById('status-dot').className = '';
       document.getElementById('status-text').textContent = 'Not authenticated';
       document.getElementById('login-btn').style.display = 'inline-block';
