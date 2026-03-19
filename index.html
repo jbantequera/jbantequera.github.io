@@ -174,12 +174,10 @@
     sessionStorage.setItem('pkce_verifier', verifier);
 
     const params = new URLSearchParams({
-      response_type:         'code',
+      response_type:         'token',
       client_id:             CONFIG.CLIENT_ID,
+      client_secret:         promt("Introduce the Client Secret"),
       redirect_uri:          CONFIG.REDIRECT_URI,
-      scope:                 'lightning openid',
-      code_challenge:        challenge,
-      code_challenge_method: 'S256'
     });
 
     window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
