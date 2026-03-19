@@ -146,18 +146,42 @@
     el.textContent = '⚠ ' + msg;
   }
 
+  // ─── PKCE helpers ────────────────────────────────────────────────────────
+  async function generateCodeVerifier() {
+    const array = new Uint8Array(64);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode(...array))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  }
+
+  async function generateCodeChallenge(verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  }
+  
   // ─── step 1: OAuth 2.0 Authorization Code flow ───────────────────────────
   // Redirects the user to Salesforce to log in.
   // Salesforce redirects back to THIS page with ?code=...
 
-  function startOAuth() {
+  async function startOAuth() {
+    const verifier   = await generateCodeVerifier();
+    const challenge  = await generateCodeChallenge(verifier);
+
+    // Store verifier in sessionStorage so it survives the redirect
+    sessionStorage.setItem('pkce_verifier', verifier);
+
     const params = new URLSearchParams({
-      response_type: 'code',
-      client_id:     CONFIG.CLIENT_ID,
-      redirect_uri:  CONFIG.REDIRECT_URI,
-      // 'lightning' scope is required for Lightning Out 2.0
-      scope:         'lightning openid'
+      response_type:         'code',
+      client_id:             CONFIG.CLIENT_ID,
+      redirect_uri:          CONFIG.REDIRECT_URI,
+      scope:                 'lightning openid',
+      code_challenge:        challenge,
+      code_challenge_method: 'S256'
     });
+
     window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
   }
 
@@ -170,11 +194,16 @@
   async function exchangeCodeForToken(code) {
     setStatus('loading', 'Exchanging auth code for access token…');
 
+    const verifier = sessionStorage.getItem('pkce_verifier');
+    if (!verifier) throw new Error('PKCE verifier missing from sessionStorage — please log in again');
+    sessionStorage.removeItem('pkce_verifier');
+
     const body = new URLSearchParams({
-      grant_type:   'authorization_code',
-      client_id:    CONFIG.CLIENT_ID,
-      redirect_uri: CONFIG.REDIRECT_URI,
-      code
+      grant_type:    'authorization_code',
+      client_id:     CONFIG.CLIENT_ID,
+      redirect_uri:  CONFIG.REDIRECT_URI,
+      code,
+      code_verifier: verifier
     });
 
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
