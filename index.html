@@ -122,7 +122,7 @@
   </div>
 
   <!--button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button-->
-  <div>1.1</div>
+  <div>1.2</div>
 
   <div id="component-box">
     <div class="box-header">Lightning Out 2.0 — c-hello-world</div>
@@ -193,14 +193,15 @@
   async function exchangeCodeForToken(code) {
     setStatus('loading', 'Exchanging auth code for access token…');
 
-    const verifier = sessionStorage.getItem('pkce_verifier');
-    if (!verifier) throw new Error('PKCE verifier missing from sessionStorage — please log in again');
-    sessionStorage.removeItem('pkce_verifier');
+    // const verifier = sessionStorage.getItem('pkce_verifier');
+    // if (!verifier) throw new Error('PKCE verifier missing from sessionStorage — please log in again');
+    // sessionStorage.removeItem('pkce_verifier');
 
     const body = new URLSearchParams({
       grant_type:    'authorization_code',
       client_id:      CONFIG.CLIENT_ID,
-      client_secret:  prompt("Introduce the Client Secret")
+      client_secret:  prompt("Introduce the Client Secret"),
+      redirect_uri:   CONFIG.REDIRECT_URI,
     });
 
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
