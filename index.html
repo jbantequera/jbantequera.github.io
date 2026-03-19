@@ -122,7 +122,7 @@
   </div>
 
   <!--button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button-->
-  <div>1.2</div>
+  <div>1.3</div>
 
   <div id="component-box">
     <div class="box-header">Lightning Out 2.0 — c-hello-world</div>
@@ -198,7 +198,7 @@
     // sessionStorage.removeItem('pkce_verifier');
 
     const body = new URLSearchParams({
-      grant_type:    'authorization_code',
+      grant_type:    'client_credentials',
       client_id:      CONFIG.CLIENT_ID,
       client_secret:  prompt("Introduce the Client Secret"),
       redirect_uri:   CONFIG.REDIRECT_URI,
