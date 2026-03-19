@@ -121,6 +121,7 @@
     <span id="status-text">Initialising…</span>
   </div>
 
+  <h1>V1.0</h1>
   <button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button>
 
   <div id="component-box">
@@ -177,9 +178,6 @@
       response_type:         'code',
       client_id:             CONFIG.CLIENT_ID,
       redirect_uri:          CONFIG.REDIRECT_URI,
-      scope:                 'lightning openid',
-      code_challenge:        challenge,
-      code_challenge_method: 'S256'
     });
 
     window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
@@ -201,9 +199,8 @@
     const body = new URLSearchParams({
       grant_type:    'authorization_code',
       client_id:     CONFIG.CLIENT_ID,
+      client_secret: prompt('Enter the Client Secret'),
       redirect_uri:  CONFIG.REDIRECT_URI,
-      code,
-      code_verifier: verifier
     });
 
     const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
