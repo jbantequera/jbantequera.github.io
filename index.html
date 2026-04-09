@@ -3,35 +3,32 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lightning Out 2.0 — Hello World</title>
+  <title>Lightning Out (Beta) — Hello World</title>
 
   <!--
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  CONFIGURATION — fill these in before deploying                 │
-  └─────────────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  CONFIGURATION — fill these in before deploying                      │
+  │                                                                      │
+  │  EXPERIENCE_SITE_URL: Your Experience Cloud site URL, e.g.           │
+  │    https://YOUR_ORG.my.site.com/SITE_NAME                            │
+  │    (NOT your standard org URL — guest access requires a site URL)    │
+  │                                                                      │
+  │  AURA_APP: The name of your Aura dependency app, e.g. "c:helloApp"  │
+  └──────────────────────────────────────────────────────────────────────┘
   -->
   <script>
     const CONFIG = {
-      // Your org's My Domain URL (no trailing slash)
-      SF_ORG_URL:     "https://orgfarm-2dbe9a529a-dev-ed.develop.my.salesforce.com",
-
-      // Consumer Key of your Connected App
-      CLIENT_ID:      "3MVG9WVXk15qiz1Ik1mlVUdMvJnovK3NWkhs0T0fGryUXYq1DTPBfZIf.vy6q80TdWKWgeZ8k758sRI97IJY1",
-
-      // Must match EXACTLY the callback URL set in the Connected App
-      // i.e. the URL of this very page on GitHub Pages
-      REDIRECT_URI:   "https://jbantequera.github.io/",
-
-      // 18-digit App ID from Setup > Lightning Out 2.0 App Manager
-      APP_ID:         "1UsdM0000000CPNSA2",
-
-      // LWC name in kebab-case with c- prefix
-      COMPONENT:      "c-hello-world",
-
-      // The Lightning Out 2.0 bootstrap script src from App Manager
-      LO_SCRIPT_SRC:  "https://orgfarm-2dbe9a529a-dev-ed.develop.my.salesforce.com/lightning/lightning.out.latest/index.iife.prod.js"
+      EXPERIENCE_SITE_URL: "https://orgfarm-2dbe9a529a-dev-ed.develop.my.site.com/lout",
+      AURA_APP:            "c:helloWorldApp",
+      COMPONENT:           "c:helloWorld"
     };
   </script>
+
+  <!--
+    Lightning Out (Beta) script — must come from the Experience Site URL.
+    Format: {EXPERIENCE_SITE_URL}/lightning/lightning.out.js
+    This is set dynamically below so you only need to edit CONFIG above.
+  -->
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,7 +53,6 @@
       align-items: center;
       gap: .5rem;
     }
-
     #status-dot {
       width: 9px; height: 9px;
       border-radius: 50%;
@@ -77,7 +73,6 @@
       box-shadow: 0 4px 24px rgba(0,0,0,.07);
       overflow: hidden;
     }
-
     .box-header {
       background: #032d60;
       color: #fff;
@@ -86,23 +81,10 @@
       letter-spacing: .1em;
       text-transform: uppercase;
     }
-
-    #lwc-host {
+    #lwc-container {
       padding: 1.5rem;
       min-height: 80px;
     }
-
-    #login-btn {
-      padding: .7rem 1.6rem;
-      background: #0176d3;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: .9rem;
-      cursor: pointer;
-      display: none;
-    }
-    #login-btn:hover { background: #0156a8; }
 
     #error-msg {
       display: none;
@@ -111,6 +93,10 @@
       max-width: 520px;
       text-align: center;
       word-break: break-word;
+      background: #fff5f5;
+      border: 1px solid #f5c2c7;
+      border-radius: 8px;
+      padding: .75rem 1rem;
     }
   </style>
 </head>
@@ -118,222 +104,68 @@
 
   <div id="status">
     <div id="status-dot" class="loading"></div>
-    <span id="status-text">Initialising…</span>
+    <span id="status-text">Loading Lightning Out script…</span>
   </div>
 
-  <h1>V1.2</h1>
-  <button id="login-btn" onclick="startOAuth()">Log in with Salesforce</button>
-
   <div id="component-box">
-    <div class="box-header">Lightning Out 2.0 — c-hello-world</div>
-    <div id="lwc-host"></div>
+    <div class="box-header">Lightning Out (Beta) — c-hello-world</div>
+    <div id="lwc-container"></div>
   </div>
 
   <div id="error-msg"></div>
 
-
   <script>
-  // ─── helpers ─────────────────────────────────────────────────────────────
-
-  function setStatus(state, msg) {
-    document.getElementById('status-dot').className = state;
-    document.getElementById('status-text').textContent = msg;
-  }
-
-  function showError(msg) {
-    setStatus('error', 'Something went wrong');
-    const el = document.getElementById('error-msg');
-    el.style.display = 'block';
-    el.textContent = '⚠ ' + msg;
-  }
-
-  // ─── PKCE helpers ────────────────────────────────────────────────────────
-  async function generateCodeVerifier() {
-    const array = new Uint8Array(64);
-    crypto.getRandomValues(array);
-    return btoa(String.fromCharCode(...array))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
-
-  async function generateCodeChallenge(verifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
-  
-  // ─── step 1: OAuth 2.0 Authorization Code flow ───────────────────────────
-  // Redirects the user to Salesforce to log in.
-  // Salesforce redirects back to THIS page with ?code=...
-
-  async function startOAuth() {
-    const verifier   = await generateCodeVerifier();
-    const challenge  = await generateCodeChallenge(verifier);
-
-    // Store verifier in sessionStorage so it survives the redirect
-    sessionStorage.setItem('pkce_verifier', verifier);
-
-    const params = new URLSearchParams({
-      response_type:         'code',
-      client_id:             CONFIG.CLIENT_ID,
-      redirect_uri:          CONFIG.REDIRECT_URI,
-      code_challenge:        challenge,
-      code_challenge_method: 'S256'
-    });
-
-    window.location.href = `${CONFIG.SF_ORG_URL}/services/oauth2/authorize?${params}`;
-  }
-
-  // ─── step 2: Exchange auth code for access_token ─────────────────────────
-  // Called after Salesforce redirects back with ?code=...
-  // NOTE: a public client (no client_secret) works for testing with a
-  //       Connected App that has "No Secret Required for Web Server Flow" enabled.
-  //       For production use a backend to keep the secret server-side.
-
-  async function exchangeCodeForToken(code) {
-    setStatus('loading', 'Exchanging auth code for access token…');
-
-    const verifier = sessionStorage.getItem('pkce_verifier');
-    if (!verifier) throw new Error('PKCE verifier missing from sessionStorage — please log in again');
-    sessionStorage.removeItem('pkce_verifier');
-
-    const body = new URLSearchParams({
-      grant_type:    'authorization_code',
-      client_id:     CONFIG.CLIENT_ID,
-      client_secret: prompt('Enter the Client Secret'),
-      redirect_uri:  CONFIG.REDIRECT_URI,
-      code: code,
-      code_verifier: verifier
-    });
-
-    const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/token`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Token exchange failed: ${err}`);
+    function setStatus(state, msg) {
+      document.getElementById('status-dot').className = state;
+      document.getElementById('status-text').textContent = msg;
     }
 
-    const data = await res.json();
-    return data.access_token;
-  }
-
-  // ─── step 3: Exchange access_token for frontdoor_uri ─────────────────────
-  // This is the UI Bridge API / singleaccess endpoint you linked.
-  // POST to /services/oauth2/singleaccess with the access token.
-
-  async function getFrontdoorUrl(accessToken) {
-    setStatus('loading', 'Getting frontdoor URL from Salesforce…');
-
-    console.log('ACCESS TOKEN: ' + accessToken);
-    
-    const res = await fetch(`${CONFIG.SF_ORG_URL}/services/oauth2/lightningoutsingleaccess`, {
-      method:  'POST',
-      headers: {},
-      // redirect_uri tells Salesforce which Lightning Out 2.0 resource to bridge into
-      body: new URLSearchParams({
-        lightning_out_app_id: CONFIG.APP_ID,
-        access_token: accessToken
-      })
-    });
-
-    if (!res.ok) {
-      console.log('KO res');
-      const err = await res.text();
-      throw new Error(`singleaccess failed (${res.status}): ${err}`);
+    function showError(msg) {
+      setStatus('error', 'Something went wrong');
+      const el = document.getElementById('error-msg');
+      el.style.display = 'block';
+      el.textContent = '⚠ ' + msg;
     }
 
-    const data = await res.json();
-    console.log('Response OK: ' + JSON.stringify(data));
-    // Response contains { frontdoor_uri: "https://..." }
-    return data.frontdoor_uri;
-  }
-
-  // ─── step 4: Inject Lightning Out 2.0 script and render component ─────────
-
-  function loadLightningOut(frontdoorUrl) {
-    setStatus('loading', 'Loading Lightning Out 2.0 script…');
-
+    // Dynamically inject the Lightning Out script from the Experience Site URL.
+    // It MUST come from the site URL (not the org URL) for guest access to work.
     const script = document.createElement('script');
-    script.type  = 'text/javascript';
-    script.async = true;
-    script.src   = CONFIG.LO_SCRIPT_SRC;
+    script.src = `${CONFIG.EXPERIENCE_SITE_URL}/lightning/lightning.out.js`;
 
     script.onload = () => {
-      setStatus('loading', 'Script loaded — setting up component…');
+      setStatus('loading', 'Script loaded — initialising app…');
 
-      // Set frontdoor-url on the lightning-out-application element
-      const app = document.createElement('lightning-out-application');
-      app.setAttribute('app-id',        CONFIG.APP_ID);
-      app.setAttribute('components',    CONFIG.COMPONENT);
-      app.setAttribute('frontdoor-url', frontdoorUrl);
+      $Lightning.use(
+        CONFIG.AURA_APP,              // Aura dependency app name
+        function() {                  // Callback: framework + app fully loaded
+          setStatus('loading', 'App ready — creating component…');
 
-      // Lifecycle events
-      window.addEventListener('lo.application.ready', () => {
-        setStatus('loading', 'Session ready — rendering component…');
-      });
-      window.addEventListener('lo.application.error', (e) => {
-        showError(e.detail?.message || 'lo.application.error');
-      });
-      window.addEventListener('lo.component.ready', () => {
-        setStatus('ok', 'Component loaded ✓');
-      });
-      window.addEventListener('lo.component.error', (e) => {
-        showError(e.detail?.message || 'lo.component.error');
-      });
-
-      // Add lightning-out-application (invisible config element)
-      document.getElementById('lwc-host').appendChild(app);
-
-      // Add the actual component element
-      const cmp = document.createElement(CONFIG.COMPONENT);
-      document.getElementById('lwc-host').appendChild(cmp);
+          $Lightning.createComponent(
+            CONFIG.COMPONENT,         // LWC component name
+            {},                       // Attributes (empty for helloWorld)
+            document.getElementById('lwc-container'),
+            function(cmp, status, errorMessage) {
+              if (status === 'SUCCESS') {
+                setStatus('ok', 'Component loaded successfully ✓');
+              } else {
+                showError(errorMessage || status);
+              }
+            }
+          );
+        },
+        CONFIG.EXPERIENCE_SITE_URL,   // Endpoint — must be the Experience Site URL
+        null                          // authToken — null for guest access
+      );
     };
 
-    script.onerror = () => showError(`Could not load LO2 script from: ${CONFIG.LO_SCRIPT_SRC}`);
+    script.onerror = () => {
+      showError(
+        `Could not load lightning.out.js from: ${CONFIG.EXPERIENCE_SITE_URL}/lightning/lightning.out.js\n` +
+        `Check that EXPERIENCE_SITE_URL is correct and that ${location.origin} is in Setup → CORS.`
+      );
+    };
 
     document.head.appendChild(script);
-  }
-
-  // ─── main: check URL for OAuth callback or kick off flow ──────────────────
-
-  async function main() {
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get('code');
-    const error  = params.get('error');
-
-    if (error) {
-      // Salesforce returned an OAuth error
-      showError(`OAuth error: ${params.get('error_description') || error}`);
-      return;
-    }
-
-    if (code) {
-      // We're back from Salesforce with an auth code — clean the URL
-      window.history.replaceState({}, '', window.location.pathname);
-
-      try {
-        const accessToken  = await exchangeCodeForToken(code);
-        const frontdoorUrl = await getFrontdoorUrl(accessToken);
-        loadLightningOut(frontdoorUrl);
-      } catch (e) {
-        showError(e.message);
-      }
-
-    } else {
-      // First visit — show the login button
-      setStatus('loading', 'Ready — please log in');
-      document.getElementById('status-dot').className = '';
-      document.getElementById('status-text').textContent = 'Not authenticated';
-      document.getElementById('login-btn').style.display = 'inline-block';
-    }
-  }
-
-  main();
   </script>
 
 </body>
