@@ -101,72 +101,27 @@
   </style>
 </head>
 <body>
+  <h1>Lightning Out - Beta Guest Access</h1>
+  <div id="lightningLocator"></div>
 
-  <div id="status">
-    <div id="status-dot" class="loading"></div>
-    <span id="status-text">Loading Lightning Out script…</span>
-  </div>
 
-  <div id="component-box">
-    <div class="box-header">Lightning Out (Beta) — c-hello-world</div>
-    <div id="lwc-container"></div>
-  </div>
-
-  <div id="error-msg"></div>
-
+  <script src="https://orgfarm-2dbe9a529a-dev-ed.develop.my.site.com/lout/lightning/lightning.out.js"></script>
   <script>
-    function setStatus(state, msg) {
-      document.getElementById('status-dot').className = state;
-      document.getElementById('status-text').textContent = msg;
-    }
-
-    function showError(msg) {
-      setStatus('error', 'Something went wrong');
-      const el = document.getElementById('error-msg');
-      el.style.display = 'block';
-      el.textContent = '⚠ ' + msg;
-    }
-
-    // Dynamically inject the Lightning Out script from the Experience Site URL.
-    // It MUST come from the site URL (not the org URL) for guest access to work.
-    const script = document.createElement('script');
-    script.src = `${CONFIG.EXPERIENCE_SITE_URL}/lightning/lightning.out.js`;
-
-    script.onload = () => {
-      setStatus('loading', 'Script loaded — initialising app…');
-
-      $Lightning.use(
-        CONFIG.AURA_APP,              // Aura dependency app name
-        function() {                  // Callback: framework + app fully loaded
-          setStatus('loading', 'App ready — creating component…');
-
-          $Lightning.createComponent(
-            CONFIG.COMPONENT,         // LWC component name
-            {},                       // Attributes (empty for helloWorld)
-            document.getElementById('lwc-container'),
-            function(cmp, status, errorMessage) {
-              if (status === 'SUCCESS') {
-                setStatus('ok', 'Component loaded successfully ✓');
-              } else {
-                showError(errorMessage || status);
-              }
-            }
-          );
-        },
-        CONFIG.EXPERIENCE_SITE_URL,   // Endpoint — must be the Experience Site URL
-        null                          // authToken — null for guest access
-      );
-    };
-
-    script.onerror = () => {
-      showError(
-        `Could not load lightning.out.js from: ${CONFIG.EXPERIENCE_SITE_URL}/lightning/lightning.out.js\n` +
-        `Check that EXPERIENCE_SITE_URL is correct and that ${location.origin} is in Setup → CORS.`
-      );
-    };
-
-    document.head.appendChild(script);
+    $Lightning.use(
+      "c:lightningOutApp", // name of the Lightning app
+      function () {
+        // Callback once framework and app loaded
+        $Lightning.createComponent(
+          "c:helloWorld", // top-level component of your app
+          {}, // attributes to set on the component when created
+          "lightningLocator", // the DOM location to insert the component
+          function (cmp) {
+            // callback when component is created and active on the page
+          }
+        );
+      },
+      "https://orgfarm-2dbe9a529a-dev-ed.develop.my.site.com/lout/" // Experience Cloud site endpoint
+    );
   </script>
-
 </body>
 </html>
