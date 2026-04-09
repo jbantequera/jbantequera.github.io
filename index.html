@@ -4,104 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lightning Out (Beta) — Hello World</title>
-
-  <!--
-  ┌──────────────────────────────────────────────────────────────────────┐
-  │  CONFIGURATION — fill these in before deploying                      │
-  │                                                                      │
-  │  EXPERIENCE_SITE_URL: Your Experience Cloud site URL, e.g.           │
-  │    https://YOUR_ORG.my.site.com/SITE_NAME                            │
-  │    (NOT your standard org URL — guest access requires a site URL)    │
-  │                                                                      │
-  │  AURA_APP: The name of your Aura dependency app, e.g. "c:helloApp"  │
-  └──────────────────────────────────────────────────────────────────────┘
-  -->
-  <script>
-    const CONFIG = {
-      EXPERIENCE_SITE_URL: "https://orgfarm-2dbe9a529a-dev-ed.develop.my.site.com/lout",
-      AURA_APP:            "c:lightningOutApp",
-      COMPONENT:           "c:helloWorld"
-    };
-  </script>
-
-  <!--
-    Lightning Out (Beta) script — must come from the Experience Site URL.
-    Format: {EXPERIENCE_SITE_URL}/lightning/lightning.out.js
-    This is set dynamically below so you only need to edit CONFIG above.
-  -->
-
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      min-height: 100vh;
-      background: #f3f6fb;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem;
-      padding: 2rem;
-      color: #1a1a2e;
-    }
-
-    #status {
-      font-size: .85rem;
-      color: #555;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    #status-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #aaa;
-      transition: background .3s;
-      flex-shrink: 0;
-    }
-    #status-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
-    #status-dot.ok      { background: #22c55e; }
-    #status-dot.error   { background: #ef4444; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    #component-box {
-      width: min(520px, 100%);
-      background: #fff;
-      border: 1px solid #dde3ee;
-      border-radius: 10px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.07);
-      overflow: hidden;
-    }
-    .box-header {
-      background: #032d60;
-      color: #fff;
-      padding: .65rem 1.2rem;
-      font-size: .75rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-    #lwc-container {
-      padding: 1.5rem;
-      min-height: 80px;
-    }
-
-    #error-msg {
-      display: none;
-      font-size: .8rem;
-      color: #ba0517;
-      max-width: 520px;
-      text-align: center;
-      word-break: break-word;
-      background: #fff5f5;
-      border: 1px solid #f5c2c7;
-      border-radius: 8px;
-      padding: .75rem 1rem;
-    }
-  </style>
 </head>
 <body>
-  <h1>Lightning Out - Beta Guest Access</h1>
+  <h1>Lightning Out - Beta Guest Access v2</h1>
   <div id="lightningLocator"></div>
 
 
@@ -109,14 +14,14 @@
   <script>
     $Lightning.use(
       "c:lightningOutApp", // name of the Lightning app
-      function () {
-        // Callback once framework and app loaded
+      function () { // Callback once framework and app loaded
+        console.log("Lightning Out cargado");
         $Lightning.createComponent(
           "c:helloWorld", // top-level component of your app
           {}, // attributes to set on the component when created
           "lightningLocator", // the DOM location to insert the component
-          function (cmp) {
-            // callback when component is created and active on the page
+          function (cmp) { // callback when component is created and active on the page
+            console.log("Componente creado");
           }
         );
       },
